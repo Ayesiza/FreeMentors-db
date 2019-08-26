@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+
 import  { sessions } from '../data/sessionData'
 class Session {
     constructor( sessionId, mentorId, questions, menteeId, menteeEmail){

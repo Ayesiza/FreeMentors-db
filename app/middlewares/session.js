@@ -1,6 +1,6 @@
 import { sessions}from '../data/sessionData';
 const appSecretkey = 'tesyuseyeyseyuwu'
- import jwt from 'jsonwebtoken';
+ 
 
 export const getSessionById = (req,res,next) => {
     const session = sessions.find(session => session.sessionId === parseInt(req.params.id))
