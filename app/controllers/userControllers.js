@@ -1,20 +1,27 @@
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
 import User from '../models/users';
-import  { users } from '../data/userData'
+
+
+dotenv.config();
 
 export class UserController{
-static signUpUser (req,res){
-  const {firstName, lastName, email, password, address, bio, occupation, expertise, admin, mentor} = req.body;
-  const id = users.length + 1;
-  const user = new User(id,firstName,lastName,email,password,address, bio, occupation, expertise,admin, mentor)
-  const token = jwt.sign({user}, 'tesyuseyeyseyuwu', { expiresIn: '24hr' });
-  user.signUpUser()
-   return res.status(201).send({status:201, token, message:'User created successfully'});
+static async signUpUser (req,res){
+  try {
+    const {firstName, lastName, email, password, address, bio, occupation, expertise, admin, mentor} = req.body;
+    const user =  new User(firstName,lastName,email,password,address, bio, occupation, expertise,admin, mentor)
+    const token = jwt.sign({user}, process.env.appSecretKey, { expiresIn: '24hr' });
+    await user.signUpUser()
+    return res.status(201).send({status:201, token, message:'User created successfully'});
+  } catch (error) {
+    return res.status(400).send({status:400, message:error.message});
+  }  
 };
 
 static signInUser(req,res){
   return res.send({status:200,message:'User is successfully logged in', token:req.token})
 }
+
 
  static getAllMentors(req,res){
    const mentors = User.getAllMentors() 

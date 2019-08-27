@@ -1,8 +1,9 @@
-import { users }from '../data/userData';
-import User from '../models/users';
-import { sessions }from '../data/sessionData';
-const appSecretkey = 'tesyuseyeyseyuwu'
- import jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
+ import dotenv from 'dotenv';
+ import User from '../models/users';
+
+dotenv.config();
+
 
  export function getToken(req, res, next) {
     const bearerHeader = req.headers.authorization;
@@ -14,7 +15,7 @@ const appSecretkey = 'tesyuseyeyseyuwu'
   }
 
   export const verifyUserToken =(req, res, next) =>{
-    jwt.verify(req.token, appSecretkey, (err, user) => {
+    jwt.verify(req.token, process.env.appSecretkey, (err, user) => {
      if (err) return res.status(403).json({ error: 403, message: err.message });
      req.user = user
      next();
@@ -30,23 +31,18 @@ export const userMentor = (req, res, next)=> {
   next();
 }
 
-export const checkIfUserExist = (req, res,next) => {
-  const finduser = User.getUserByEmail(req.body.email);
-  if(finduser) return res.status(409).send({status:409, message:'user already exist'})
+export  const checkIfUserExist = async(req, res,next) => {
+  const finduser = await User.getUserByEmail(req.body.email);
+  if(finduser.rows[0]) return res.status(409).send({status:409, message:'user already exist'})
   next();
 }
 
-// export const signToken =(req,res,next) => {
-//   const token = jwt.sign(req.body, 'tesyuseyeyseyuwu', { expiresIn: '24hr' });
-//   req.token = token;
-//   next();
-// }
 
-export const checkIfUserNotExist =(req,res,next) => {
-  const user = User.getUserByEmail(req.body.email);
-  if(!user)return res.status(404).send({message:'user not found'});
-  if(user.password !== req.body.password) return res.status(400).send({message:'wrong email or password'})
-  req.token = jwt.sign(user, 'tesyuseyeyseyuwu', { expiresIn: '24hr' });
+export const checkIfUserNotExist = async(req,res,next) => {
+  const user = await User.getUserByEmail(req.body.email);
+  if(!user.rows[0])return res.status(404).send({message:'user not found'});
+  if(user.rows[0].password !== req.body.password) return res.status(400).send({message:'wrong email or password'})
+  req.token = jwt.sign(user, process.env.appSecretkey, { expiresIn: '24hr' });
   next();
 }
 
